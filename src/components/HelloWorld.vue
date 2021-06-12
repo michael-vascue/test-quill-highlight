@@ -1,58 +1,102 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div ref="scrollingContainer" class="scrolling-container">
+    <div ref="editorNode" class="editor-node" :style="editorStyle">
+      <pre>console.log("hi")</pre>
+    </div>
   </div>
 </template>
 
 <script>
+import Quill from "quill";
+import hljs from "highlight.js";
+
+import CodeSyntax from "./codeSyntax";
+import "quill/dist/quill.snow.css";
+import "highlight.js/styles/github.css";
+
 export default {
-  name: 'HelloWorld',
+  name: "App",
   props: {
-    msg: String
-  }
-}
+    minHeight: {
+      type: String,
+      default: "450px",
+    },
+    scrollable: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  data() {
+    return {
+      editorInstance: null,
+    };
+  },
+  computed: {
+    editorStyle() {
+      var style = "min-height: " + this.minHeight + ";";
+      if (this.scrollable) {
+        style += "overflow-y:auto;";
+        style += "max-height: " + this.minHeight + ";";
+      }
+      return style;
+    },
+  },
+  mounted() {
+    const editorOpts = {
+      modules: {
+        syntax: {
+          hljs,
+          // highlight: (() => {
+          //   if (hljs == null) return null;
+          //   return function(text) {
+          //     let result = hljs.highlightAuto(text);
+          //     return result.value;
+          //   };
+          // })(),
+        },
+        toolbar: {
+          container: [
+            [{ header: [1, 2, 3, false] }],
+            ["bold", "italic", "underline", "code-block"],
+          ],
+        },
+      },
+      theme: "snow",
+    };
+    editorOpts["scrollingContainer"] = this.$refs.scrollingContainer;
+    Quill.register({ "modules/syntax": CodeSyntax }, true);
+    this.editorInstance = new Quill(this.$refs.editorNode, editorOpts);
+  },
+};
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
+<style>
+.editor-node {
+  height: auto;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+.scrolling-container {
+  height: 100%;
+  min-height: 100%;
+  overflow-y: auto;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+.ql-editor strong {
+  font-weight: bold;
 }
-a {
-  color: #42b983;
+.ql-editor {
+  letter-spacing: 0;
+  font-style: normal;
+  color: rgba(0, 0, 0, 0.84);
+  font-size: 16px;
+  line-height: 1.8;
+}
+.ql-editor p {
+  letter-spacing: 0;
+  font-weight: 300;
+  font-style: normal;
+  margin-block-start: 0px !important;
+  margin-block-end: 0px !important;
+  color: rgba(0, 0, 0, 0.84);
+  font-size: 16px;
+  line-height: 1.8;
 }
 </style>

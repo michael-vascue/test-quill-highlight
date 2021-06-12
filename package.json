@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "highlight.js": "^11.0.1",
+    "quill": "2.0.0-dev.4",
     "vue": "^2.6.11"
   },
   "devDependencies": {
